@@ -5,5 +5,8 @@
     "@angular/common": "^9.0.2",
     "@angular/core": "^9.0.2",
     "tslib": "^1.10.0"
+  },
+  "dependencies": {
+    "@angular/elements": "^9.0.2"
   }
 }
