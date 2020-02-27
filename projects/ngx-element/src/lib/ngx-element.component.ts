@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Type } from '@angular/core';
+import { NgxElementService } from './ngx-element.service';
 
 @Component({
   selector: 'lib-ngx-element',
@@ -12,9 +13,18 @@ import { Component, OnInit, Input } from '@angular/core';
 export class NgxElementComponent implements OnInit {
   @Input() selector: string;
 
-  constructor() { }
+  componentToLoad: Type<any>;
+
+  constructor(private ngxElementService: NgxElementService) { }
 
   ngOnInit(): void {
+    const lazyConfig = this.ngxElementService.getComponentsToLoad();
+    console.log('LAZY CONFIG', Array.from(lazyConfig.keys()));
+
+    this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
+      this.componentToLoad = event.componentClass;
+      console.log('COMPONENT TO LOAD', this.componentToLoad);
+    });
   }
 
 }
