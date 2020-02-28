@@ -1,6 +1,5 @@
-import { Injectable, Inject, NgModuleRef, NgModuleFactory, Type, Compiler, Injector } from '@angular/core';
+import { Injectable, Inject, NgModuleFactory, Type, Compiler, Injector } from '@angular/core';
 import { LAZY_CMPS_PATH_TOKEN, LazyComponentDef } from './tokens';
-import { LoadChildrenCallback } from '@angular/router';
 import { LazyCmpLoadedEvent } from './lazy-component-loaded-event';
 import { Observable, from } from 'rxjs';
 
