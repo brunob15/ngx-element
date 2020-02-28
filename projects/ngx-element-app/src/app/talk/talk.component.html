@@ -1,0 +1,11 @@
+<div class="talk">
+    <h2 class="title">{{ title }}</h2>
+    <p class="description">{{ description }}</p>
+
+    <div class="foot">
+        <div class="tags">
+            <span class="badge" *ngFor="let tag of talkTags">{{ tag }}</span>
+        </div>
+        <p class="speaker">{{ speaker }}</p>
+    </div>
+</div>

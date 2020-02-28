@@ -1,0 +1,21 @@
+.sponsor {
+    position: relative;
+
+    .image {
+        height: 100px;
+        background-color: white;
+    }
+
+    .name {
+        max-height: 0;
+        text-align: center;
+        overflow: hidden;
+        transition: max-height .3s ease-out;
+    }
+
+    &:hover {
+        .name {
+            max-height: 20px;
+        }
+    }
+}
