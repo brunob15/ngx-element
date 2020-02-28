@@ -1,6 +1,25 @@
 {
   "name": "ngx-element",
   "version": "0.0.1",
+  "description": "A simple way to lazy load Angular components in non-angular projects",
+  "author": "Bruno Bradach",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brunob15/ngx-element.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brunob15/ngx-element/issues"
+  },
+  "homepage": "https://github.com/brunob15/ngx-element",
+  "keywords": [
+    "angular",
+    "elements",
+    "angular elements",
+    "web components",
+    "lazy loading",
+    "non-angular"
+  ],
+  "licence": "MIT",
   "peerDependencies": {
     "@angular/common": "^9.0.2",
     "@angular/core": "^9.0.2",
