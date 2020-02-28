@@ -1,10 +1,18 @@
-import { Component, OnInit, Input, Type, ViewChild, ViewContainerRef, ComponentFactoryResolver, ComponentFactory, ComponentRef, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Type,
+  ViewChild,
+  ViewContainerRef,
+  ComponentFactoryResolver,
+  OnDestroy,
+  ElementRef } from '@angular/core';
 import { NgxElementService } from './ngx-element.service';
 
 @Component({
   selector: 'lib-ngx-element',
   template: `
-    <h1>Loading component {{ selector }}</h1>
     <ng-template #container></ng-template>
   `,
   styles: []
@@ -17,24 +25,64 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   componentToLoad: Type<any>;
 
   constructor(private ngxElementService: NgxElementService,
-              private resolver: ComponentFactoryResolver) { }
+              private resolver: ComponentFactoryResolver,
+              private elementRef: ElementRef) { }
 
   ngOnInit(): void {
-    const lazyConfig = this.ngxElementService.getComponentsToLoad();
-    console.log('LAZY CONFIG', Array.from(lazyConfig.keys()));
-
     this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
       this.componentToLoad = event.componentClass;
-      console.log('COMPONENT TO LOAD', this.componentToLoad);
 
-      this.createComponent();
+      const attributes = this.getElementAttributes();
+      this.createComponent(attributes);
     });
   }
 
-  createComponent() {
+  createComponent(attributes) {
     this.container.clear();
     const factory = this.resolver.resolveComponentFactory(this.componentToLoad);
     this.componentRef = this.container.createComponent(factory);
+
+    this.setAttributes(attributes);
+    this.listenToAttributeChanges();
+  }
+
+  setAttributes(attributes) {
+    attributes.forEach(attr => {
+      this.componentRef.instance[attr.name] = attr.value;
+    });
+  }
+
+  getElementAttributes() {
+    const attrs = this.elementRef.nativeElement.attributes;
+    const attributes = [];
+
+    for (let attr, i = 0; i < attrs.length; i++) {
+      attr = attrs[i];
+
+      if (attr.nodeName.match('^data-')) {
+        attributes.push({
+          name: attr.nodeName.replace('data-', ''),
+          value: attr.nodeValue
+        });
+      }
+    }
+
+    return attributes;
+  }
+
+  listenToAttributeChanges() {
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes') {
+          const attributes = this.getElementAttributes();
+          this.setAttributes(attributes);
+        }
+      });
+    });
+
+    observer.observe(this.elementRef.nativeElement, {
+      attributes: true
+    });
   }
 
   ngOnDestroy() {

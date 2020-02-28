@@ -17,7 +17,7 @@ export class TalkComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.talkTags = JSON.parse(this.tags);
+    this.talkTags = this.tags ? JSON.parse(this.tags) : [];
   }
 
 }

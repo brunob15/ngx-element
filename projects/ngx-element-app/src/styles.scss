@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
+body {
+    font-family: 'Open Sans';
+
+    .content {
+        max-width: 1000px;
+        margin: auto;
+
+        .section-title {
+            margin-top: 60px;
+        }
+
+        .sponsors {
+            display: flex;
+            flex-wrap: wrap;
+
+            sponsor-element {
+                margin: 0 20px;
+            
+                &:first-child {
+                    margin-left: 0;
+                }
+            }
+        }
+    }
+}
+
+.badge {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: #000099;
+    color: white;
+    border-radius: 15px;
+    font-size: 11px;
+}
