@@ -1,0 +1,33 @@
+.talk {
+    background-color: #f0f0f0;
+    margin-top: 20px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: box-shadow .3s ease;
+
+    &:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    }
+
+    .title {
+        margin-bottom: 0;
+    }
+
+    .description {
+        margin-top: 0;
+    }
+
+    .foot {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+
+        .speaker {
+            margin: 5px 0;
+        }
+
+        .badge:first-child {
+            margin-left: 0;
+        }
+    }
+}
