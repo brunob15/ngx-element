@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/ngx-element.svg)](https://badge.fury.io/js/ngx-element)
 ![Tests CI](https://github.com/brunob15/ngx-element/workflows/Tests%20CI/badge.svg)
 
 # NgxElement
