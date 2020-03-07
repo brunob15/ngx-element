@@ -7,7 +7,9 @@ import {
   ViewContainerRef,
   ComponentFactoryResolver,
   OnDestroy,
-  ElementRef } from '@angular/core';
+  ElementRef,
+  Injector,
+  ReflectiveInjector} from '@angular/core';
 import { NgxElementService } from './ngx-element.service';
 
 @Component({
@@ -23,14 +25,18 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
   componentRef;
   componentToLoad: Type<any>;
+  componentFactoryResolver: ComponentFactoryResolver;
+  injector: Injector;
+  refInjector: ReflectiveInjector;
 
   constructor(private ngxElementService: NgxElementService,
-              private resolver: ComponentFactoryResolver,
               private elementRef: ElementRef) { }
 
   ngOnInit(): void {
     this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
       this.componentToLoad = event.componentClass;
+      this.componentFactoryResolver = this.ngxElementService.getComponentFactoryResolver(this.componentToLoad);
+      this.injector = this.ngxElementService.getInjector(this.componentToLoad);
 
       const attributes = this.getElementAttributes();
       this.createComponent(attributes);
@@ -39,8 +45,11 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
   createComponent(attributes) {
     this.container.clear();
-    const factory = this.resolver.resolveComponentFactory(this.componentToLoad);
-    this.componentRef = this.container.createComponent(factory);
+    const factory = this.componentFactoryResolver.resolveComponentFactory(this.componentToLoad);
+
+    this.refInjector = 
+      ReflectiveInjector.resolveAndCreate([{provide: this.componentToLoad, useValue: this.componentToLoad}], this.injector);
+    this.componentRef = this.container.createComponent(factory, 0, this.refInjector);
 
     this.setAttributes(attributes);
     this.listenToAttributeChanges();
@@ -88,5 +97,4 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.componentRef.destroy();
   }
-
 }

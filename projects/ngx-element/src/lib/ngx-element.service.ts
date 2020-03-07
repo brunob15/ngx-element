@@ -1,4 +1,4 @@
-import { Injectable, Inject, NgModuleFactory, Type, Compiler, Injector } from '@angular/core';
+import { Injectable, Inject, NgModuleFactory, Type, Compiler, Injector, ComponentFactoryResolver } from '@angular/core';
 import { LAZY_CMPS_PATH_TOKEN, LazyComponentDef } from './tokens';
 import { LazyCmpLoadedEvent } from './lazy-component-loaded-event';
 import { Observable, from } from 'rxjs';
@@ -10,6 +10,9 @@ export class NgxElementService {
   private componentsToLoad: Map<string, LazyComponentDef>;
   private loadedComponents = new Map<string, Type<any>>();
   private elementsLoading = new Map<string, Promise<LazyCmpLoadedEvent>>();
+
+  injectors = new Map<Type<any>, Injector>();
+  componentFactoryResolvers = new Map<Type<any>, ComponentFactoryResolver>();
 
   constructor(
     @Inject(LAZY_CMPS_PATH_TOKEN)
@@ -25,6 +28,19 @@ export class NgxElementService {
     });
 
     this.componentsToLoad = ELEMENT_MODULE_PATHS;
+  }
+
+  receiveContext(component: Type<any>, injector: Injector) {
+    this.injectors.set(component, injector);
+    this.componentFactoryResolvers.set(component, injector.get(ComponentFactoryResolver));
+  }
+
+  getInjector(component: Type<any>): Injector {
+    return this.injectors.get(component);
+  }
+
+  getComponentFactoryResolver(component: Type<any>): ComponentFactoryResolver {
+    return this.componentFactoryResolvers.get(component);
   }
 
   getComponentsToLoad() {
@@ -92,6 +108,11 @@ export class NgxElementService {
               } else {
                 componentClass = elementModuleRef.instance.customElementComponent;
               }
+
+              // Register injector of the lazy module.
+              // This is needed to share the entryComponents between the lazy module and the application
+              const moduleInjector = elementModuleRef.injector;
+              this.receiveContext(componentClass, moduleInjector);
 
               this.loadedComponents.set(componentSelector, componentClass);
               this.elementsLoading.delete(componentSelector);
