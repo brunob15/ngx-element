@@ -4,7 +4,8 @@ import { NgxElementComponent } from './ngx-element.component';
 import { LAZY_CMPS_PATH_TOKEN } from './tokens';
 
 @NgModule({
-  declarations: [NgxElementComponent]
+  declarations: [NgxElementComponent],
+  entryComponents: [NgxElementComponent]
 })
 export class NgxElementModule {
   constructor(private injector: Injector) {

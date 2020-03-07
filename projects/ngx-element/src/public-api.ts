@@ -3,5 +3,4 @@
  */
 
 export * from './lib/ngx-element.service';
-export * from './lib/ngx-element.component';
 export * from './lib/ngx-element.module';

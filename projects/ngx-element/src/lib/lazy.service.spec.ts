@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 
-import { NgxElementService } from './ngx-element.service';
+import { LazyService } from './lazy.service';
 import { LAZY_CMPS_PATH_TOKEN } from './tokens';
 
-describe('NgxElementService', () => {
-  let service: NgxElementService;
+describe('LazyService', () => {
+  let service: LazyService;
 
   const lazyConfig = [
     {
@@ -26,7 +26,7 @@ describe('NgxElementService', () => {
         }
       ]
     });
-    service = TestBed.inject(NgxElementService);
+    service = TestBed.inject(LazyService);
   });
 
   it('should be created', () => {
