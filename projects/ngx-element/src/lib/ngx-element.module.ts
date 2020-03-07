@@ -8,6 +8,7 @@ import { LAZY_CMPS_PATH_TOKEN } from './tokens';
   entryComponents: [NgxElementComponent]
 })
 export class NgxElementModule {
+
   constructor(private injector: Injector) {
     const ngxElement = createCustomElement(NgxElementComponent, { injector });
     customElements.define('ngx-element', ngxElement);
@@ -26,5 +27,4 @@ export class NgxElementModule {
   }
 
   ngDoBootstrap() {}
-
 }

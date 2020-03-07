@@ -7,11 +7,9 @@ import {
   ViewContainerRef,
   ComponentFactoryResolver,
   OnDestroy,
-  ElementRef, 
+  ElementRef,
   Injector,
   ReflectiveInjector} from '@angular/core';
-import { LazyService } from './lazy.service';
-import { Subscription } from 'rxjs';
 import { NgxElementService } from './ngx-element.service';
 
 @Component({
@@ -27,17 +25,15 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
   componentRef;
   componentToLoad: Type<any>;
-  resolverSub: Subscription;
   componentFactoryResolver: ComponentFactoryResolver;
   injector: Injector;
   refInjector: ReflectiveInjector;
 
-  constructor(private lazyService: LazyService,
-              private ngxElementService: NgxElementService,
+  constructor(private ngxElementService: NgxElementService,
               private elementRef: ElementRef) { }
 
   ngOnInit(): void {
-    this.lazyService.getComponentToLoad(this.selector).subscribe(event => {
+    this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
       this.componentToLoad = event.componentClass;
       this.componentFactoryResolver = this.ngxElementService.getComponentFactoryResolver(this.componentToLoad);
       this.injector = this.ngxElementService.getInjector(this.componentToLoad);
@@ -99,7 +95,6 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.resolverSub.unsubscribe();
     this.componentRef.destroy();
   }
 }
