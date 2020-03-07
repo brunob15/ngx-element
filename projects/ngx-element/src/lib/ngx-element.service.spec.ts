@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { NgxElementService } from './ngx-element.service';
 import { LAZY_CMPS_PATH_TOKEN } from './tokens';
 
-describe('LazyService', () => {
+describe('NgxElementService', () => {
   let service: NgxElementService;
 
   const lazyConfig = [
