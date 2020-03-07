@@ -62,7 +62,6 @@ export class AppModule {
   ngDoBootstrap() {}
 }
 ```
-Note: You can skip the entryComponents array if you are using Angular 9.
 
 ### 3) Use the lazy loaded component
 You can load your Angular component by adding an `<ngx-element>` tag to the DOM in your non-angular application like follows:
