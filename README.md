@@ -29,10 +29,12 @@ First of all, expose the Angular Component that should be loaded via a customEle
 @NgModule({
   declarations: [TalkComponent],
   ...
-  exports: [TalkComponent]
+  exports: [TalkComponent],
+  entryComponents: [TalkComponent]
 })
 export class TalkModule {
   customElementComponent: Type<any> = TalkComponent;
+  ...
 }
 ```
 
@@ -48,19 +50,15 @@ const lazyConfig = [
 ];
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  ...,
   imports: [
-    BrowserModule,
+    ...,
     NgxElementModule.forRoot(lazyConfig)
   ],
-  entryComponents: [
-    NgxElementComponent
-  ],
-  providers: []
+  ...
 })
 export class AppModule {
+  ...
   ngDoBootstrap() {}
 }
 ```
