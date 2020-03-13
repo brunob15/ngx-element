@@ -14,7 +14,7 @@ export class NgxElementModule {
     customElements.define('ngx-element', ngxElement);
   }
 
-  static forRoot(modulePaths: any[]): ModuleWithProviders {
+  static forRoot(modulePaths: any[]): ModuleWithProviders<NgxElementModule> {
     return {
       ngModule: NgxElementModule,
       providers: [
