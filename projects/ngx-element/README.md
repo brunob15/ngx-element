@@ -1,24 +1,76 @@
+[![npm version](https://badge.fury.io/js/ngx-element.svg)](https://badge.fury.io/js/ngx-element)
+![Tests CI](https://github.com/brunob15/ngx-element/workflows/Tests%20CI/badge.svg)
+
 # NgxElement
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.2.
+NgxElement enables to lazy load Angular components in non-angular applications.
+The library will register a custom element to which you can pass an attribute to specify what component you want to load.
 
-## Code scaffolding
+It's a great way to use Angular in your CMS platform in an efficient manner.
 
-Run `ng generate component component-name --project ngx-element` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-element`.
-> Note: Don't forget to add `--project ngx-element` or else it will be added to the default project in your `angular.json` file. 
+## Install Angular Elements
+This library depends on Angular Elements. You can install it by running:
+```
+$ ng add @angular/elements
+```
 
-## Build
+## Installing the library
+```
+$ npm install ngx-element
+```
 
-Run `ng build ngx-element` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Usage
+### 1) Configure the Module containing the lazy loaded component
 
-## Publishing
+First of all, expose the Angular Component that should be loaded via a customElementComponent property.
 
-After building your library with `ng build ngx-element`, go to the dist folder `cd dist/ngx-element` and run `npm publish`.
+```
+...
+@NgModule({
+  declarations: [TalkComponent],
+  ...
+  exports: [TalkComponent],
+  entryComponents: [TalkComponent]
+})
+export class TalkModule {
+  customElementComponent: Type<any> = TalkComponent;
+  ...
+}
+```
 
-## Running unit tests
+### 2) Define the lazy component map in your AppModule
+Just like with the Angular Router, define the map of component selector and lazy module.
 
-Run `ng test ngx-element` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```
+const lazyConfig = [
+  {
+    selector: 'talk',
+    loadChildren: () => import('./talk/talk.module').then(m => m.TalkModule)
+  }
+];
 
-## Further help
+@NgModule({
+  ...,
+  imports: [
+    ...,
+    NgxElementModule.forRoot(lazyConfig)
+  ],
+  ...
+})
+export class AppModule {
+  ...
+  ngDoBootstrap() {}
+}
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+### 3) Use the lazy loaded component
+You can load your Angular component by adding an `<ngx-element>` tag to the DOM in your non-angular application like follows:
+
+```
+<ngx-element
+  selector="talk"
+  data-title="Angular Elements"
+  data-description="How to write Angular and get Web Components"
+  data-speaker="Bruno">
+</ngx-element>
+```

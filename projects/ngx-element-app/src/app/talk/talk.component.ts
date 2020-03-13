@@ -6,7 +6,6 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./talk.component.scss']
 })
 export class TalkComponent implements OnInit {
-
   @Input() title: string;
   @Input() description: string;
   @Input() speaker: string;
@@ -19,5 +18,4 @@ export class TalkComponent implements OnInit {
   ngOnInit() {
     this.talkTags = this.tags ? JSON.parse(this.tags) : [];
   }
-
 }

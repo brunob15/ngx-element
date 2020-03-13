@@ -6,7 +6,6 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./sponsor.component.scss']
 })
 export class SponsorComponent implements OnInit {
-
   @Input() image: string;
   @Input() name: string;
 
