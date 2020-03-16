@@ -74,3 +74,6 @@ You can load your Angular component by adding an `<ngx-element>` tag to the DOM 
   data-speaker="Bruno">
 </ngx-element>
 ```
+
+# Credits
+[Juri Strumpflohner](https://github.com/juristr) and [ngx-lazy-el](https://github.com/juristr/ngx-lazy-el)
