@@ -16,7 +16,7 @@ $ ng add @angular/elements
 
 ## Installing the library
 ```
-$ npm install ngx-element
+$ npm install ngx-element --save
 ```
 
 ## Usage
