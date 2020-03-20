@@ -70,13 +70,24 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
       if (attr.nodeName.match('^data-')) {
         attributes.push({
-          name: attr.nodeName.replace('data-', ''),
+          name: this.camelCaseAttribute(attr.nodeName),
           value: attr.nodeValue
         });
       }
     }
 
     return attributes;
+  }
+
+  camelCaseAttribute(attribute: string) {
+    const attr = attribute.replace('data-', '');
+    const chunks = attr.split('-');
+
+    if (chunks.length > 1) {
+      return chunks[0] + chunks.slice(1).map(chunk => chunk.replace(/^\w/, c => c.toUpperCase())).join();
+    }
+
+    return attr;
   }
 
   listenToAttributeChanges() {
