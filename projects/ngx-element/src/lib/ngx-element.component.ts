@@ -84,7 +84,7 @@ export class NgxElementComponent implements OnInit, OnDestroy {
     const chunks = attr.split('-');
 
     if (chunks.length > 1) {
-      return chunks[0] + chunks.slice(1).map(chunk => chunk.replace(/^\w/, c => c.toUpperCase())).join();
+      return chunks[0] + chunks.slice(1).map(chunk => chunk.replace(/^\w/, c => c.toUpperCase())).join('');
     }
 
     return attr;
