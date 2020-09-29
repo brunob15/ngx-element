@@ -1,5 +1,6 @@
 import {
   Component,
+  ComponentFactory,
   OnInit,
   Input,
   Output,
@@ -14,6 +15,8 @@ import {
   ReflectiveInjector
 } from '@angular/core';
 import {NgxElementService} from './ngx-element.service';
+import {merge, Subscription} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'lib-ngx-element',
@@ -23,9 +26,9 @@ import {NgxElementService} from './ngx-element.service';
   styles: []
 })
 export class NgxElementComponent implements OnInit, OnDestroy {
+
+  private ngElementEventsSubscription: Subscription;
   @Input() selector: string;
-  @Input() outputs: string;
-  @Output() outputsErrors = new EventEmitter<string>();
   @ViewChild('container', {read: ViewContainerRef}) container;
 
   componentRef;
@@ -38,6 +41,19 @@ export class NgxElementComponent implements OnInit, OnDestroy {
     private ngxElementService: NgxElementService,
     private elementRef: ElementRef
   ) {}
+
+  private setProxiedOutputs(factory: ComponentFactory<any>): void {
+    const eventEmitters = factory.outputs.map(({propName, templateName}) => {
+      const emitter = (this.componentRef.instance as any)[propName] as EventEmitter<any>;
+      return emitter.pipe(map((value: any) => ({name: templateName, value})));
+    });
+    const outputEvents = merge(...eventEmitters);
+    this.ngElementEventsSubscription = outputEvents.subscribe(subscription => {
+      const customEvent = document.createEvent('CustomEvent');
+      customEvent.initCustomEvent(subscription.name, false, false, subscription.value);
+      this.elementRef.nativeElement.dispatchEvent(customEvent);
+    });
+  }
 
   ngOnInit(): void {
     this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
@@ -61,24 +77,7 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
     this.setAttributes(attributes);
     this.listenToAttributeChanges();
-    this.subscribeProxiedOutputs(this.outputs);
-  }
-
-  subscribeProxiedOutputs(outputs: string): void {
-    const outputsErrors: Array<string> = [];
-    if (outputs && typeof outputs === 'string' && outputs !== '') {
-      const outputNames = outputs.split(',');
-      outputNames.forEach(outputName => {
-        try {
-          this.componentRef.instance[outputName.trim()].subscribe((value: any) => {
-            console.log(`... observer of <${outputName}> emitted the value:`, value);
-          });
-        } catch (error) {
-          outputsErrors.push(outputName);
-        }
-      });
-      this.outputsErrors.emit(outputsErrors.join(','));
-    }
+    this.setProxiedOutputs(factory);
   }
 
   setAttributes(attributes) {
@@ -133,5 +132,6 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.componentRef.destroy();
+    this.ngElementEventsSubscription.unsubscribe();
   }
 }
