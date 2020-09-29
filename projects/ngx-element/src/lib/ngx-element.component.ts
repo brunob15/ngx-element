@@ -42,6 +42,10 @@ export class NgxElementComponent implements OnInit, OnDestroy {
     private elementRef: ElementRef
   ) {}
 
+  /**
+   * Subscribe to event emitters of a lazy loaded and dynamically instantiated Angular component
+   * and dispatch them as Custom Events on the NgxElementComponent that is used in a template.
+   */
   private setProxiedOutputs(factory: ComponentFactory<any>): void {
     const eventEmitters = factory.outputs.map(({propName, templateName}) => {
       const emitter = (this.componentRef.instance as any)[propName] as EventEmitter<any>;
