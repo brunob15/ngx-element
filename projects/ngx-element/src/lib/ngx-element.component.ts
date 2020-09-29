@@ -2,15 +2,18 @@ import {
   Component,
   OnInit,
   Input,
+  Output,
   Type,
   ViewChild,
   ViewContainerRef,
   ComponentFactoryResolver,
   OnDestroy,
+  EventEmitter,
   ElementRef,
   Injector,
-  ReflectiveInjector} from '@angular/core';
-import { NgxElementService } from './ngx-element.service';
+  ReflectiveInjector
+} from '@angular/core';
+import {NgxElementService} from './ngx-element.service';
 
 @Component({
   selector: 'lib-ngx-element',
@@ -21,7 +24,9 @@ import { NgxElementService } from './ngx-element.service';
 })
 export class NgxElementComponent implements OnInit, OnDestroy {
   @Input() selector: string;
-  @ViewChild('container', { read: ViewContainerRef }) container;
+  @Input() outputs: string;
+  @Output() outputsErrors = new EventEmitter<string>();
+  @ViewChild('container', {read: ViewContainerRef}) container;
 
   componentRef;
   componentToLoad: Type<any>;
@@ -29,8 +34,10 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   injector: Injector;
   refInjector: ReflectiveInjector;
 
-  constructor(private ngxElementService: NgxElementService,
-              private elementRef: ElementRef) { }
+  constructor(
+    private ngxElementService: NgxElementService,
+    private elementRef: ElementRef
+  ) {}
 
   ngOnInit(): void {
     this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
@@ -47,12 +54,31 @@ export class NgxElementComponent implements OnInit, OnDestroy {
     this.container.clear();
     const factory = this.componentFactoryResolver.resolveComponentFactory(this.componentToLoad);
 
-    this.refInjector = 
-      ReflectiveInjector.resolveAndCreate([{provide: this.componentToLoad, useValue: this.componentToLoad}], this.injector);
+    this.refInjector = ReflectiveInjector.resolveAndCreate(
+      [{provide: this.componentToLoad, useValue: this.componentToLoad}], this.injector
+    );
     this.componentRef = this.container.createComponent(factory, 0, this.refInjector);
 
     this.setAttributes(attributes);
     this.listenToAttributeChanges();
+    this.subscribeProxiedOutputs(this.outputs);
+  }
+
+  subscribeProxiedOutputs(outputs: string): void {
+    const outputsErrors: Array<string> = [];
+    if (outputs && typeof outputs === 'string' && outputs !== '') {
+      const outputNames = outputs.split(',');
+      outputNames.forEach(outputName => {
+        try {
+          this.componentRef.instance[outputName.trim()].subscribe((value: any) => {
+            console.log(`... observer of <${outputName}> emitted the value:`, value);
+          });
+        } catch (error) {
+          outputsErrors.push(outputName);
+        }
+      });
+      this.outputsErrors.emit(outputsErrors.join(','));
+    }
   }
 
   setAttributes(attributes) {
