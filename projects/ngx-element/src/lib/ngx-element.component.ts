@@ -1,16 +1,22 @@
 import {
   Component,
+  ComponentFactory,
   OnInit,
   Input,
+  Output,
   Type,
   ViewChild,
   ViewContainerRef,
   ComponentFactoryResolver,
   OnDestroy,
+  EventEmitter,
   ElementRef,
   Injector,
-  ReflectiveInjector} from '@angular/core';
-import { NgxElementService } from './ngx-element.service';
+  ReflectiveInjector
+} from '@angular/core';
+import {NgxElementService} from './ngx-element.service';
+import {merge, Subscription} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'lib-ngx-element',
@@ -20,8 +26,10 @@ import { NgxElementService } from './ngx-element.service';
   styles: []
 })
 export class NgxElementComponent implements OnInit, OnDestroy {
+
+  private ngElementEventsSubscription: Subscription;
   @Input() selector: string;
-  @ViewChild('container', { read: ViewContainerRef }) container;
+  @ViewChild('container', {read: ViewContainerRef}) container;
 
   componentRef;
   componentToLoad: Type<any>;
@@ -29,8 +37,27 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   injector: Injector;
   refInjector: ReflectiveInjector;
 
-  constructor(private ngxElementService: NgxElementService,
-              private elementRef: ElementRef) { }
+  constructor(
+    private ngxElementService: NgxElementService,
+    private elementRef: ElementRef
+  ) {}
+
+  /**
+   * Subscribe to event emitters of a lazy loaded and dynamically instantiated Angular component
+   * and dispatch them as Custom Events on the NgxElementComponent that is used in a template.
+   */
+  private setProxiedOutputs(factory: ComponentFactory<any>): void {
+    const eventEmitters = factory.outputs.map(({propName, templateName}) => {
+      const emitter = (this.componentRef.instance as any)[propName] as EventEmitter<any>;
+      return emitter.pipe(map((value: any) => ({name: templateName, value})));
+    });
+    const outputEvents = merge(...eventEmitters);
+    this.ngElementEventsSubscription = outputEvents.subscribe(subscription => {
+      const customEvent = document.createEvent('CustomEvent');
+      customEvent.initCustomEvent(subscription.name, false, false, subscription.value);
+      this.elementRef.nativeElement.dispatchEvent(customEvent);
+    });
+  }
 
   ngOnInit(): void {
     this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
@@ -47,12 +74,14 @@ export class NgxElementComponent implements OnInit, OnDestroy {
     this.container.clear();
     const factory = this.componentFactoryResolver.resolveComponentFactory(this.componentToLoad);
 
-    this.refInjector = 
-      ReflectiveInjector.resolveAndCreate([{provide: this.componentToLoad, useValue: this.componentToLoad}], this.injector);
+    this.refInjector = ReflectiveInjector.resolveAndCreate(
+      [{provide: this.componentToLoad, useValue: this.componentToLoad}], this.injector
+    );
     this.componentRef = this.container.createComponent(factory, 0, this.refInjector);
 
     this.setAttributes(attributes);
     this.listenToAttributeChanges();
+    this.setProxiedOutputs(factory);
   }
 
   setAttributes(attributes) {
@@ -107,5 +136,6 @@ export class NgxElementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.componentRef.destroy();
+    this.ngElementEventsSubscription.unsubscribe();
   }
 }
