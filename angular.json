@@ -70,7 +70,9 @@
             "styles": [
               "projects/ngx-element-app/src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "projects/ngx-element-app/src/js/pure-externals.js"
+            ]
           },
           "configurations": {
             "production": {

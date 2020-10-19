@@ -26,8 +26,11 @@
             margin: 5px 0;
         }
 
-        .badge:first-child {
-            margin-left: 0;
+        .badge {
+            cursor: pointer;
+            :first-child {
+                margin-left: 0;
+            }
         }
     }
 }

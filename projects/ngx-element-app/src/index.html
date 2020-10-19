@@ -19,6 +19,15 @@
         data-speaker="Bruno"
         data-tags='["Angular", "Elements"]'>
       </ngx-element>
+      <div class="clicked-tags">
+        To be able to listen to output events of Angular talk component (clicks on its badges):
+        <button
+          onclick="ngxElementTalk.addComponentListener('talk', 'custom-click', 'clicked-tags-container'); this.disabled=true; this.innerText='Already done ...';">
+            Add the listener via pure JS
+        </button>
+        (see dev console)<br /><br />
+        Clicked badges: <span id="clicked-tags-container"></span>
+      </div>
     </div>
 
     <h1 class="section-title">Sponsors</h1>
@@ -26,7 +35,7 @@
       <ngx-element 
         selector="sponsor"
         data-image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/368px-JetBrains_Logo_2016.svg.png"
-        data-name="Jetbrains">
+        data-name="JetBrains">
       </ngx-element>
     </div>
   </div>

@@ -34,3 +34,12 @@ body {
     border-radius: 15px;
     font-size: 11px;
 }
+
+.clicked-tags {
+    margin: 10px 0px 5px 0px;
+    text-align: center;
+    button {
+        background-color: lightblue;
+        cursor: pointer;
+    }
+}

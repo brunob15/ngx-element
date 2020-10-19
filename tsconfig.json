@@ -20,7 +20,6 @@
     ],
     "paths": {
       "ngx-element": [
-        "dist/ngx-element/ngx-element",
         "dist/ngx-element"
       ]
     }

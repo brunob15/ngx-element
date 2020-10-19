@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-talk',
@@ -11,11 +11,20 @@ export class TalkComponent implements OnInit {
   @Input() speaker: string;
   @Input() tags: string;
 
+  /*
+  tslint:disable:no-output-rename
+  */
+  @Output('custom-click') customClick = new EventEmitter<string>();
+
   talkTags: string[];
 
   constructor() { }
 
   ngOnInit() {
     this.talkTags = this.tags ? JSON.parse(this.tags) : [];
+  }
+
+  invokeClick(tag: string): void {
+    this.customClick.emit(tag);
   }
 }
