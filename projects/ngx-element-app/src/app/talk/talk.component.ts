@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-talk',
@@ -10,6 +10,7 @@ export class TalkComponent implements OnInit {
   @Input() description: string;
   @Input() speaker: string;
   @Input() tags: string;
+  @Output() tagClick: EventEmitter<string> = new EventEmitter();
 
   talkTags: string[];
 
@@ -17,5 +18,9 @@ export class TalkComponent implements OnInit {
 
   ngOnInit() {
     this.talkTags = this.tags ? JSON.parse(this.tags) : [];
+  }
+
+  onTagClick(tag: string) {
+    this.tagClick.emit(tag);
   }
 }
