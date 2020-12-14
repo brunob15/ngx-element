@@ -1,6 +1,6 @@
 {
-  "name": "@eg-brs/ngx-element",
-  "version": "0.0.0",
+  "name": "@eg-brs/ngx-elements",
+  "version": "0.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
