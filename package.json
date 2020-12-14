@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --prod --project ngx-element",
-    "publish": "cd dist/ngx-element && npm publish"
+    "publish": "cd dist/ngx-element && npm publish",
     "test": "ng test --project ngx-element",
     "lint": "ng lint --project ngx-element",
     "e2e": "ng e2e --project ngx-element"
