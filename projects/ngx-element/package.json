@@ -1,5 +1,5 @@
 {
-  "name": "ngx-element",
+  "name": "@eg-brs/ngx-element",
   "version": "0.0.7",
   "description": "A simple way to lazy load Angular components in non-angular projects",
   "author": "Bruno Bradach",
