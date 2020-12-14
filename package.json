@@ -4,10 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "build": "ng build --prod --project ngx-element",
+    "publish": "cd dist/ngx-element && npm publish"
+    "test": "ng test --project ngx-element",
+    "lint": "ng lint --project ngx-element",
+    "e2e": "ng e2e --project ngx-element"
   },
   "dependencies": {
     "@angular/animations": "~9.0.2",
