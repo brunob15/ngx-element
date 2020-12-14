@@ -4,7 +4,13 @@
 
     <div class="foot">
         <div class="tags">
-            <span class="badge" *ngFor="let tag of talkTags">{{ tag }}</span>
+            <span
+                class="badge"
+                *ngFor="let tag of talkTags"
+                (click)="onTagClick(tag)"
+            >
+                {{ tag }}
+            </span>
         </div>
         <p class="speaker">{{ speaker }}</p>
     </div>

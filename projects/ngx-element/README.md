@@ -74,3 +74,24 @@ You can load your Angular component by adding an `<ngx-element>` tag to the DOM 
   data-speaker="Bruno">
 </ngx-element>
 ```
+
+### 4) Listen to events
+You can listen to events emitted by Angular components.
+
+Add an `@Output` event to your component:
+
+```
+...
+@Output() tagClick: EventEmitter<string> = new EventEmitter();
+...
+```
+
+Then add an event listener to the `tagClick` event on the appropiate `<ngx-element>` element:
+
+```
+const talks = document.querySelector('ngx-element[selector="talk"]');
+talks.addEventListener('tagClick', event => {
+  const emittedValue = event.detail;
+  ...
+});
+```
