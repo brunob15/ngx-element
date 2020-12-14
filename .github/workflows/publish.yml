@@ -16,6 +16,8 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@eg-brs'
       - run: npm install
+      - run: npm run build --if-present
+      - run: npm test
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
