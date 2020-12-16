@@ -3,7 +3,6 @@ import {
   ComponentFactory,
   OnInit,
   Input,
-  Output,
   Type,
   ViewChild,
   ViewContainerRef,
@@ -12,7 +11,6 @@ import {
   EventEmitter,
   ElementRef,
   Injector,
-  ReflectiveInjector,
   Inject
 } from '@angular/core';
 import {NgxElementService} from './ngx-element.service';
