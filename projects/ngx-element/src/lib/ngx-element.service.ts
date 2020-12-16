@@ -50,6 +50,10 @@ export class NgxElementService {
     return from(registered);
   }
 
+  /**
+   * Checks whether the selector is registered in the registry.
+   * @param selector
+   */
   isSelectorRegistered(selector: string) {
     let result = false;
     this.registry.definitions.forEach(def => {

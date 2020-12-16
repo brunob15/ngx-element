@@ -20,8 +20,7 @@ import { LazyComponentRegistry, LAZY_CMPS_REGISTRY } from './tokens';
 
 @Component({
   template: `
-    <ng-template #container>
-    </ng-template>
+    <ng-template #container></ng-template>
     <ng-content></ng-content>
   `,
   styles: []
@@ -62,9 +61,7 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const selector = this.registry.useCustomElementNames ?
-      this.elementRef.nativeElement.localName.substring(this.registry.customElementNamePrefix.length + 1) :
-      this.selector;
+    const selector = this.resolveSelector();
 
     this.ngxElementService.getComponentToLoad(selector).subscribe(event => {
       this.componentToLoad = event.componentClass;
@@ -79,28 +76,15 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   createComponent(attributes) {
     const factory = this.componentFactoryResolver.resolveComponentFactory(this.componentToLoad);
 
-    // If selector have already registered as a customComponent then ignore the component
-    if (this.ngxElementService.isSelectorRegistered(factory.selector)) {
-      console.log(`Cannot load ${factory.selector} because it defines a selector that is already registered as a customComponent. This
-                    warning may occur if the lazy-loaded component has the same selector defined as defined in the config for lazy loading.`);
+    if (this.registry.useCustomElementNames && this.ngxElementService.isSelectorRegistered(factory.selector)) {
+      console.warn(`Cannot lazy load component that defines ${factory.selector} as a selector, because the selector is
+                    already reserved in the LazyComponentRegistry.`);
       return;
     }
 
     this.refInjector = Injector.create({ providers: [{ provide: this.componentToLoad, useValue: this.componentToLoad }] });
 
-    const projectNodes = [];
-    factory.ngContentSelectors.forEach(selector => {
-      const el = this.elementRef.nativeElement as HTMLElement;
-      const content = el.querySelectorAll(selector);
-      if(content) {
-        const nodes = [];
-        content.forEach(c => {
-          const p = c.parentElement;
-          nodes.push(p.removeChild(c));
-        })
-        projectNodes.push(nodes);
-      }
-    });
+    const projectNodes = this.extractProjectedNodes(factory);
     this.container.clear();
     this.componentRef = this.container.createComponent(factory, 0, this.refInjector, projectNodes);
 
@@ -162,5 +146,28 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.componentRef.destroy();
     this.ngElementEventsSubscription.unsubscribe();
+  }
+
+  private extractProjectedNodes(factory: ComponentFactory<any>) {
+    const projectNodes = [];
+    factory.ngContentSelectors.forEach(selector => {
+      const el = this.elementRef.nativeElement as HTMLElement;
+      const content = el.querySelectorAll(selector);
+      if (content) {
+        const nodes = [];
+        content.forEach(c => {
+          const p = c.parentElement;
+          nodes.push(p.removeChild(c));
+        });
+        projectNodes.push(nodes);
+      }
+    });
+    return projectNodes;
+  }
+
+  private resolveSelector() {
+    return this.registry.useCustomElementNames ?
+      this.elementRef.nativeElement.localName.substring(this.registry.customElementNamePrefix.length + 1) :
+      this.selector;
   }
 }
