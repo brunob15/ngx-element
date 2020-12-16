@@ -1,5 +1,5 @@
 import { Injectable, Inject, NgModuleFactory, Type, Compiler, Injector, ComponentFactoryResolver } from '@angular/core';
-import { LAZY_CMPS_PATH_TOKEN, LazyComponentDef } from './tokens';
+import { LAZY_CMPS_REGISTRY, LazyComponentDef, LazyComponentRegistry } from './tokens';
 import { LazyCmpLoadedEvent } from './lazy-component-loaded-event';
 import { Observable, from } from 'rxjs';
 
@@ -15,15 +15,12 @@ export class NgxElementService {
   componentFactoryResolvers = new Map<Type<any>, ComponentFactoryResolver>();
 
   constructor(
-    @Inject(LAZY_CMPS_PATH_TOKEN)
-    modulePaths: {
-      selector: string
-    }[],
+    @Inject(LAZY_CMPS_REGISTRY) private registry: LazyComponentRegistry,
     private compiler: Compiler,
     private injector: Injector
   ) {
     const ELEMENT_MODULE_PATHS = new Map<string, any>();
-    modulePaths.forEach(route => {
+    registry.definitions.forEach(route => {
       ELEMENT_MODULE_PATHS.set(route.selector, route);
     });
 
@@ -51,6 +48,20 @@ export class NgxElementService {
     // Returns observable that completes when the lazy module has been loaded.
     const registered = this.loadComponent(selector);
     return from(registered);
+  }
+
+  /**
+   * Checks whether the selector is registered in the registry.
+   * @param selector
+   */
+  isSelectorRegistered(selector: string) {
+    let result = false;
+    this.registry.definitions.forEach(def => {
+      if (selector === def.selector) {
+        result = true;
+      }
+    });
+    return result;
   }
 
   /**
@@ -93,35 +104,35 @@ export class NgxElementService {
             }
           })
           .then(moduleFactory => {
-              const elementModuleRef = moduleFactory.create(this.injector);
-              let componentClass;
+            const elementModuleRef = moduleFactory.create(this.injector);
+            let componentClass;
 
-              if (typeof elementModuleRef.instance.customElementComponent === 'object') {
-                componentClass = elementModuleRef.instance.customElementComponent[componentSelector];
+            if (typeof elementModuleRef.instance.customElementComponent === 'object') {
+              componentClass = elementModuleRef.instance.customElementComponent[componentSelector];
 
-                if (!componentClass) {
-                  // tslint:disable-next-line: no-string-throw
-                  throw `You specified multiple component elements in module ${elementModuleRef} but there was no match for tag
+              if (!componentClass) {
+                // tslint:disable-next-line: no-string-throw
+                throw `You specified multiple component elements in module ${elementModuleRef} but there was no match for tag
                         ${componentSelector} in ${JSON.stringify(elementModuleRef.instance.customElementComponent)}.
                          Make sure the selector in the module is aligned with the one specified in the lazy module definition.`;
-                }
-              } else {
-                componentClass = elementModuleRef.instance.customElementComponent;
               }
+            } else {
+              componentClass = elementModuleRef.instance.customElementComponent;
+            }
 
-              // Register injector of the lazy module.
-              // This is needed to share the entryComponents between the lazy module and the application
-              const moduleInjector = elementModuleRef.injector;
-              this.receiveContext(componentClass, moduleInjector);
+            // Register injector of the lazy module.
+            // This is needed to share the entryComponents between the lazy module and the application
+            const moduleInjector = elementModuleRef.injector;
+            this.receiveContext(componentClass, moduleInjector);
 
-              this.loadedComponents.set(componentSelector, componentClass);
-              this.elementsLoading.delete(componentSelector);
-              this.componentsToLoad.delete(componentSelector);
+            this.loadedComponents.set(componentSelector, componentClass);
+            this.elementsLoading.delete(componentSelector);
+            this.componentsToLoad.delete(componentSelector);
 
-              resolve({
-                selector: componentSelector,
-                componentClass
-              });
+            resolve({
+              selector: componentSelector,
+              componentClass
+            });
           })
           .catch(err => {
             this.elementsLoading.delete(componentSelector);

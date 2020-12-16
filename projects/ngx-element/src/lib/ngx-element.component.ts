@@ -3,7 +3,6 @@ import {
   ComponentFactory,
   OnInit,
   Input,
-  Output,
   Type,
   ViewChild,
   ViewContainerRef,
@@ -12,16 +11,17 @@ import {
   EventEmitter,
   ElementRef,
   Injector,
-  ReflectiveInjector
+  Inject
 } from '@angular/core';
 import {NgxElementService} from './ngx-element.service';
 import {merge, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
+import { LazyComponentRegistry, LAZY_CMPS_REGISTRY } from './tokens';
 
 @Component({
-  selector: 'lib-ngx-element',
   template: `
     <ng-template #container></ng-template>
+    <ng-content></ng-content>
   `,
   styles: []
 })
@@ -35,12 +35,13 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   componentToLoad: Type<any>;
   componentFactoryResolver: ComponentFactoryResolver;
   injector: Injector;
-  refInjector: ReflectiveInjector;
+  refInjector: Injector;
 
   constructor(
     private ngxElementService: NgxElementService,
-    private elementRef: ElementRef
-  ) {}
+    private elementRef: ElementRef,
+    @Inject(LAZY_CMPS_REGISTRY) private registry: LazyComponentRegistry
+  ) { }
 
   /**
    * Subscribe to event emitters of a lazy loaded and dynamically instantiated Angular component
@@ -60,7 +61,9 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.ngxElementService.getComponentToLoad(this.selector).subscribe(event => {
+    const selector = this.resolveSelector();
+
+    this.ngxElementService.getComponentToLoad(selector).subscribe(event => {
       this.componentToLoad = event.componentClass;
       this.componentFactoryResolver = this.ngxElementService.getComponentFactoryResolver(this.componentToLoad);
       this.injector = this.ngxElementService.getInjector(this.componentToLoad);
@@ -71,13 +74,19 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   }
 
   createComponent(attributes) {
-    this.container.clear();
     const factory = this.componentFactoryResolver.resolveComponentFactory(this.componentToLoad);
 
-    this.refInjector = ReflectiveInjector.resolveAndCreate(
-      [{provide: this.componentToLoad, useValue: this.componentToLoad}], this.injector
-    );
-    this.componentRef = this.container.createComponent(factory, 0, this.refInjector);
+    if (this.registry.useCustomElementNames && this.ngxElementService.isSelectorRegistered(factory.selector)) {
+      console.warn(`Cannot lazy load component that defines ${factory.selector} as a selector, because the selector is
+                    already reserved in the LazyComponentRegistry.`);
+      return;
+    }
+
+    this.refInjector = Injector.create({ providers: [{ provide: this.componentToLoad, useValue: this.componentToLoad }] });
+
+    const projectNodes = this.extractProjectedNodes(factory);
+    this.container.clear();
+    this.componentRef = this.container.createComponent(factory, 0, this.refInjector, projectNodes);
 
     this.setAttributes(attributes);
     this.listenToAttributeChanges();
@@ -97,7 +106,7 @@ export class NgxElementComponent implements OnInit, OnDestroy {
     for (let attr, i = 0; i < attrs.length; i++) {
       attr = attrs[i];
 
-      if (attr.nodeName.match('^data-')) {
+      if ((!this.registry.useCustomElementNames && attr.nodeName.match('^data-')) || this.registry.useCustomElementNames) {
         attributes.push({
           name: this.camelCaseAttribute(attr.nodeName),
           value: attr.nodeValue
@@ -137,5 +146,28 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.componentRef.destroy();
     this.ngElementEventsSubscription.unsubscribe();
+  }
+
+  private extractProjectedNodes(factory: ComponentFactory<any>) {
+    const projectNodes = [];
+    factory.ngContentSelectors.forEach(selector => {
+      const el = this.elementRef.nativeElement as HTMLElement;
+      const content = el.querySelectorAll(selector);
+      if (content) {
+        const nodes = [];
+        content.forEach(c => {
+          const p = c.parentElement;
+          nodes.push(p.removeChild(c));
+        });
+        projectNodes.push(nodes);
+      }
+    });
+    return projectNodes;
+  }
+
+  private resolveSelector() {
+    return this.registry.useCustomElementNames ?
+      this.elementRef.nativeElement.localName.substring(this.registry.customElementNamePrefix.length + 1) :
+      this.selector;
   }
 }

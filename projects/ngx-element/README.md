@@ -42,12 +42,16 @@ export class TalkModule {
 Just like with the Angular Router, define the map of component selector and lazy module.
 
 ```
-const lazyConfig = [
-  {
-    selector: 'talk',
-    loadChildren: () => import('./talk/talk.module').then(m => m.TalkModule)
-  }
+const lazyConfig = {
+  definitions: [
+    {
+      selector: 'talk',
+      loadChildren: () => import('./talk/talk.module').then(m => m.TalkModule)
+    }
+  ],
+  useCustomElementNames: false
 ];
+
 
 @NgModule({
   ...,

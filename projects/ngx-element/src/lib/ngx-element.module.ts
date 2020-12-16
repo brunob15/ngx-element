@@ -1,7 +1,7 @@
-import { NgModule, Injector, ModuleWithProviders } from '@angular/core';
+import { NgModule, Injector, ModuleWithProviders, Inject } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { NgxElementComponent } from './ngx-element.component';
-import { LAZY_CMPS_PATH_TOKEN } from './tokens';
+import { LazyComponentRegistry, LAZY_CMPS_REGISTRY } from './tokens';
 
 @NgModule({
   declarations: [NgxElementComponent],
@@ -9,18 +9,25 @@ import { LAZY_CMPS_PATH_TOKEN } from './tokens';
 })
 export class NgxElementModule {
 
-  constructor(private injector: Injector) {
-    const ngxElement = createCustomElement(NgxElementComponent, { injector });
-    customElements.define('ngx-element', ngxElement);
+  constructor(private injector: Injector, @Inject(LAZY_CMPS_REGISTRY) private registry: LazyComponentRegistry) {
+    if(!registry.useCustomElementNames) {
+      const ngxElement = createCustomElement(NgxElementComponent, { injector });
+      customElements.define('ngx-element', ngxElement);
+    } else {
+      registry.definitions.forEach(def => {
+        const ngxElement = createCustomElement(NgxElementComponent, { injector });
+        customElements.define(`${registry.customElementNamePrefix}-${def.selector}`, ngxElement);
+      });
+    }
   }
 
-  static forRoot(modulePaths: any[]): ModuleWithProviders<NgxElementModule> {
+  static forRoot(registry: any): ModuleWithProviders<NgxElementModule> {
     return {
       ngModule: NgxElementModule,
       providers: [
         {
-          provide: LAZY_CMPS_PATH_TOKEN,
-          useValue: modulePaths
+          provide: LAZY_CMPS_REGISTRY,
+          useValue: registry
         }
       ]
     };
