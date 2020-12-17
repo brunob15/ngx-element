@@ -8,7 +8,7 @@
                 *ngFor="let tag of talkTags"
                 class="badge"
                 title="Click on me and see that the output is emitted and recognized outside of the component."
-                (click)="invokeClick(tag)">
+                (click)="onTagClick(tag)">
                     {{ tag }}
             </span>
         </div>

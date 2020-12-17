@@ -79,7 +79,7 @@ export class TalkComponent implements OnInit {
     this.talkTags = this.tags ? JSON.parse(this.tags) : [];
   }
 
-  invokeClick(tag: string): void {
+  onTagClick(tag: string): void {
     this.tagClick.emit(tag);
   }
 }
