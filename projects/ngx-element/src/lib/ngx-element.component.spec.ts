@@ -7,6 +7,12 @@ describe('NgxElementComponent', () => {
   let component: NgxElementComponent;
   let fixture: ComponentFixture<NgxElementComponent>;
 
+  const inputsAttrs = {
+    title: 'Angular Elements',
+    description: 'How to write Angular and get Web Components',
+    speaker: 'Bruno'
+  };
+
   const lazyConfig = [
     {
       selector: 'talk',
@@ -29,16 +35,50 @@ describe('NgxElementComponent', () => {
       ]
     })
     .compileComponents();
-  }));
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(NgxElementComponent);
     component = fixture.componentInstance;
     component.selector = 'talk';
     fixture.detectChanges();
-  });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should pass and receive the same "title" attr value', () => {
+    let outputObject: {attrName: string, attrValue: string};
+    const nativeElement = fixture.nativeElement;
+    nativeElement.addEventListener('tagClick', (e: CustomEvent) => {
+      outputObject = JSON.parse(e.detail);
+      expect(outputObject.attrValue).toEqual(inputsAttrs[outputObject.attrName]);
+    });
+    nativeElement.setAttribute('data-is-test-mode', 'Y');
+    nativeElement.setAttribute('data-title', inputsAttrs.title);
+    expect().nothing();
+  });
+
+  it('should pass and receive the same "description" attr value', () => {
+    let outputObject: {attrName: string, attrValue: string};
+    const nativeElement = fixture.nativeElement;
+    nativeElement.addEventListener('tagClick', (e: CustomEvent) => {
+      outputObject = JSON.parse(e.detail);
+      expect(outputObject.attrValue).toEqual(inputsAttrs[outputObject.attrName]);
+    });
+    nativeElement.setAttribute('data-is-test-mode', 'Y');
+    nativeElement.setAttribute('data-description', inputsAttrs.description);
+    expect().nothing();
+  });
+
+  it('should pass and receive the same "speaker" attr value', () => {
+    let outputObject: {attrName: string, attrValue: string};
+    const nativeElement = fixture.nativeElement;
+    nativeElement.addEventListener('tagClick', (e: CustomEvent) => {
+      outputObject = JSON.parse(e.detail);
+      expect(outputObject.attrValue).toEqual(inputsAttrs[outputObject.attrName]);
+    });
+    nativeElement.setAttribute('data-is-test-mode', 'Y');
+    nativeElement.setAttribute('data-speaker', inputsAttrs.speaker);
+    expect().nothing();
   });
 });
