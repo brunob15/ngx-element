@@ -46,6 +46,18 @@ describe('NgxElementComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  /**
+   * ATTENTION:
+   * Because of calling <dispatchEvent> to emit <customEvent> and the spec of
+   * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
+   * that says: Unlike "native" events, which are fired by the DOM and invoke
+   * event handlers asynchronously via the event loop, dispatchEvent() invokes
+   * event handlers synchronously. All applicable event handlers will execute
+   * and return before the code continues on after the call to dispatchEvent()
+   * ..., the line of code <outputObject = JSON.parse(e.detail);> is called
+   * always after all other ones, so the expectation has to be evaluated here.
+   */
+
   it('should pass and receive the same "title" attr value', () => {
     let outputObject: {attrName: string, attrValue: string};
     const nativeElement = fixture.nativeElement;
