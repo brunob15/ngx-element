@@ -1,6 +1,7 @@
 import {
   Component,
   ComponentFactory,
+  ComponentRef,
   OnInit,
   Input,
   Output,
@@ -31,7 +32,7 @@ export class NgxElementComponent implements OnInit, OnDestroy {
   @Input() selector: string;
   @ViewChild('container', {read: ViewContainerRef}) container;
 
-  componentRef;
+  componentRef: ComponentRef<any>;
   componentToLoad: Type<any>;
   componentFactoryResolver: ComponentFactoryResolver;
   injector: Injector;
