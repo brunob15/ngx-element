@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-talk',
@@ -6,7 +6,6 @@ import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
   styleUrls: ['./talk.component.scss']
 })
 export class TalkComponent implements OnInit {
-
   private _isTestMode = 'N';
   @Input() set isTestMode(value: string) {
     if (this._isTestMode !== value) {
